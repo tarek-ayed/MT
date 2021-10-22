@@ -1,2 +1,4 @@
 easyfsl
 ipython
+pynvml
+ipykernel
