@@ -2,3 +2,5 @@ easyfsl
 ipython
 pynvml
 ipykernel
+jupyter
+ipywidgets
