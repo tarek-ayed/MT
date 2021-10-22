@@ -1,8 +1,18 @@
 #%%
 import easyfsl as fsl
+import os
 
 from easyfsl.data_tools import EasySet, TaskSampler
 from torch.utils.data import DataLoader
+
+from easyfsl.methods import PrototypicalNetworks
+import torch
+from torch import nn
+from torch.optim import Adam
+from torchvision.models import resnet18
+
+GPU_TO_USE = 1
+torch.cuda.set_device(GPU_TO_USE)
 
 #%%
 train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
@@ -18,11 +28,6 @@ train_loader = DataLoader(
 )
 
 #%%
-from easyfsl.methods import PrototypicalNetworks
-from torch import nn
-from torch.optim import Adam
-from torchvision.models import resnet18
-
 convolutional_network = resnet18(pretrained=True)
 convolutional_network.fc = nn.Flatten()
 model = PrototypicalNetworks(convolutional_network).cuda()
