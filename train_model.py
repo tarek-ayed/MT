@@ -1,9 +1,10 @@
 #%%
-import easyfsl as fsl
-
 from easyfsl.data_tools import EasySet, TaskSampler
 from torch.utils.data import DataLoader
+import torch
 
+GPU_TO_USE = 0
+torch.cuda.set_device(GPU_TO_USE)
 #%%
 train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
 train_sampler = TaskSampler(
@@ -12,7 +13,7 @@ train_sampler = TaskSampler(
 train_loader = DataLoader(
     train_set,
     batch_sampler=train_sampler,
-    num_workers=12,
+    num_workers=8,
     pin_memory=True,
     collate_fn=train_sampler.episodic_collate_fn,
 )
@@ -46,3 +47,6 @@ test_loader = DataLoader(
 
 accuracy = model.evaluate(test_loader)
 print(f"Average accuracy : {(100 * accuracy):.2f}")
+#%%
+torch.save(model, 'resnet18_pt_CUB_1st')
+# %%

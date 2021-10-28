@@ -4,3 +4,4 @@ pynvml
 ipykernel
 jupyter
 ipywidgets
+black
