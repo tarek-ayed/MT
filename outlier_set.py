@@ -1,4 +1,3 @@
-#%%
 from pathlib import Path
 from typing import List, Tuple, Union
 from easyfsl.data_tools import EasySet
@@ -14,9 +13,12 @@ class OutlierSet(EasySet):
         self.swaps = swaps
         if swaps is not None:
             self._set_swaps()
+        self.outlier_mode = False
 
     def __getitem__(self, item: int):
         img, _ = super().__getitem__(item)
+        if self.outlier_mode:
+            return(img, self.outlier_labels[item])
         label = self.swapped_labels[item]
         return (img, label)
     
@@ -38,9 +40,20 @@ class OutlierSet(EasySet):
     def get_outlier_labels(self):
         outlier_labels = [0] * len(self.labels)
         for index, img_label in enumerate(self.labels):
-            if self.swaps[img_label] != img_label:
+            if self.swapped_labels[index] != img_label:
                 outlier_labels[index] = 1
         return(outlier_labels)
     
     def get_swaps(self):
         return(self.swaps)
+    
+    def get_class(self, class_index):
+        indices = [i for i, label in enumerate(self.labels) if label==class_index]
+        return(indices)
+    
+    def activate_outlier_mode(self):
+        self.outlier_labels = self.get_outlier_labels()
+        self.outlier_mode = True
+    
+    def disable_outlier_mode(self):
+        self.outlier_mode = False
