@@ -18,17 +18,20 @@ class OutlierSet(EasySet):
     def __getitem__(self, item: int):
         img, _ = super().__getitem__(item)
         if self.outlier_mode:
-            return(img, self.outlier_labels[item])
+            return (img, self.outlier_labels[item])
         label = self.swapped_labels[item]
         return (img, label)
-    
-    def set_swaps(self, swaps: List[Tuple[int, int]]=None, n_outliers=500):
+
+    def set_swaps(self, swaps: List[Tuple[int, int]] = None, n_outliers=500):
         if swaps is not None:
             self.swaps = swaps
             self._set_swaps()
         else:
             outlier_indices = np.random.choice(len(self.labels), n_outliers)
-            self.swaps = [(outlier_indices[ind], outlier_indices[ind+1]) for ind in range(0,n_outliers//2, 2)]
+            self.swaps = [
+                (outlier_indices[ind], outlier_indices[ind + 1])
+                for ind in range(0, n_outliers // 2, 2)
+            ]
             self._set_swaps()
         return self.swaps
 
@@ -36,24 +39,29 @@ class OutlierSet(EasySet):
         for index1, index2 in self.swaps:
             self.swapped_labels[index1] = index2
             self.swapped_labels[index2] = index1
-    
+
     def get_outlier_labels(self):
         outlier_labels = [0] * len(self.labels)
         for index, img_label in enumerate(self.labels):
             if self.swapped_labels[index] != img_label:
                 outlier_labels[index] = 1
-        return(outlier_labels)
-    
+        return outlier_labels
+
     def get_swaps(self):
-        return(self.swaps)
-    
+        return self.swaps
+
     def get_class(self, class_index):
-        indices = [i for i, label in enumerate(self.labels) if label==class_index]
-        return(indices)
-    
+        indices = [i for i, label in enumerate(self.labels) if label == class_index]
+        outlier_labels = [
+            self.outlier_labels[i]
+            for i, label in enumerate(self.labels)
+            if label == class_index
+        ]
+        return (indices, outlier_labels)
+
     def activate_outlier_mode(self):
         self.outlier_labels = self.get_outlier_labels()
         self.outlier_mode = True
-    
+
     def disable_outlier_mode(self):
         self.outlier_mode = False

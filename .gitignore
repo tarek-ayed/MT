@@ -5,3 +5,4 @@ tarek-mt
 .vscode/
 __pycache__/
 models
+nohup.out

@@ -11,7 +11,7 @@ from torch import nn
 from torch.optim import Adam
 from torchvision.models import resnet18
 
-GPU_TO_USE = 1
+GPU_TO_USE = 0
 torch.cuda.set_device(GPU_TO_USE)
 
 #%%
