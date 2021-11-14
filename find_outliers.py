@@ -1,22 +1,35 @@
-#%%
-from easyfsl.data_tools import task_sampler
-from easyfsl.data_tools import EasySet
-from torch.utils.data.sampler import BatchSampler
-from outlier_set import OutlierSet
 from torch.utils.data import DataLoader
 import torch
-from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
+from utils.parser import parse_args_outliers
+from utils.config import DATASETS, OUTLIER_DETECTION_METHODS
 
 
-model = torch.load("models/resnet50_pt_CUB_1st")
+args = parse_args_outliers()
+print("------ Parameters for test_sparsity ------")
+for parameter, value in args.__dict__.items():
+    print(f"{parameter}: {value}")
+print("------------------------------------------")
 
-test_set = OutlierSet(specs_file="./data/CUB/test.json", training=False)
+
+use_cuda = args.use_cuda
+path_to_model = args.model_path
+dataset = args.dataset
+n_classes = args.n_classes
+outlier_detection_methods = args.outlier_detection_methods
+n_outliers = args.n_outliers
+
+if use_cuda is None:
+    use_cuda = torch.cuda.is_available()
+device = "cuda" if use_cuda else "cpu"
+
+model = torch.load(path_to_model, map_location=torch.device(device))
+model.eval()
+
+test_set = DATASETS[dataset]
 test_set.set_swaps(n_outliers=50)
-
-N_CLASSES = 30
 
 test_set.activate_outlier_mode()
 class_loaders = [
@@ -25,33 +38,37 @@ class_loaders = [
         sampler=test_set.get_class(k)[0],  # images
         batch_size=64,
     )
-    for k in range(N_CLASSES)
+    for k in range(n_classes)
 ]
-outlier_labels = [test_set.get_class(k)[1] for k in range(N_CLASSES)]
+outlier_labels = [test_set.get_class(k)[1] for k in range(n_classes)]
 
-# %%
-model.eval()
 predictions = []
-for class_ in range(N_CLASSES):
 
-    counter = 0
-    for imgs, _ in class_loaders[class_]:
-        counter += 1
-        imgs = imgs.cuda()
-        z_backbone = model.backbone(imgs)
-        scores = torch.cdist(z_backbone, z_backbone).detach().cpu().numpy()
-    assert counter == 1
+for outlier_detection_name in outlier_detection_methods:
 
-    clustering = DBSCAN(eps=0.6, min_samples=1, metric="precomputed").fit(
-        scores / scores.max()
+    detect_outliers = OUTLIER_DETECTION_METHODS[outlier_detection_name]
+
+    for class_ in range(n_classes):
+
+        counter = 0
+        for imgs, _ in class_loaders[class_]:
+            counter += 1
+            if use_cuda:
+                imgs = imgs.cuda()
+            z_backbone = model.backbone(imgs)
+            scores = torch.cdist(z_backbone, z_backbone).detach().cpu().numpy()
+        assert counter == 1
+
+        predictions.append(detect_outliers(scores))
+
+    all_preds = np.concatenate(predictions, axis=0)
+    y_true = np.concatenate(outlier_labels, axis=0)
+
+    print(
+        f"Accuracy with {outlier_detection_name}: {accuracy_score(all_preds, y_true)}"
     )
-
-    predictions.append(clustering.labels_ >= 1)
-
-all_preds = np.concatenate(predictions, axis=0)
-y_true = np.concatenate(outlier_labels, axis=0)
-
-print(f"Accuracy: {accuracy_score(all_preds, y_true)}")
-print(f"F1 Score: {f1_score(all_preds, y_true)}")
-print(f"Precision: {precision_score(all_preds, y_true)}")
-print(f"Recall: {recall_score(all_preds, y_true)}")
+    print(f"F1 Score with {outlier_detection_name}: {f1_score(all_preds, y_true)}")
+    print(
+        f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true)}"
+    )
+    print(f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true)}")

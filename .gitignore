@@ -3,6 +3,7 @@ data/CUB/images.tgz
 .DS_Store
 tarek-mt
 .vscode/
+.venv
 __pycache__/
 models
 nohup.out
