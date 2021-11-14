@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "MT"
+version = "0.1.0"
+description = ""
+authors = ["Tarek Ayed"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+easyfsl = "^0.2.0"
+ipython = "^7.29.0"
+pynvml = "^11.0.0"
+ipykernel = "^6.5.0"
+jupyter = "^1.0.0"
+ipywidgets = "^7.6.5"
+black = "^21.10b0"
+sklearn = "^0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
