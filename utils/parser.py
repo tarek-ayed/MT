@@ -19,15 +19,25 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
-        "--use_cuda", default=None, type=bool, help="Specify whether to use GPU. By default uses it when available"
+        "--use_cuda",
+        default=None,
+        type=bool,
+        help="Specify whether to use GPU. By default uses it when available",
     )
 
     parser.add_argument(
-        "--outlier_detection_methods", default=['DBSCAN'], type=list, help="Specify which outlier detection methods to use"
+        "--outlier_detection_methods",
+        default=["DBSCAN"],
+        type=str,
+        nargs="*",
+        help="Specify which outlier detection methods to use",
     )
 
     parser.add_argument(
-        "--n_outliers", default=50, type=list, help="Number of outliers to add in dataset"
+        "--n_outliers",
+        default=50,
+        type=list,
+        help="Number of outliers to add in dataset",
     )
 
     return parser.parse_args()

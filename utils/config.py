@@ -1,5 +1,5 @@
 from outlier_set import OutlierSet
-from utils.outlier_detection import dbscan
+from utils.outlier_detection import dbscan, isolation_forest, lof, svm
 
 
 DATASETS = {
@@ -7,4 +7,9 @@ DATASETS = {
     "CIFAR": "./data/CIFAR/test.json",
 }
 
-OUTLIER_DETECTION_METHODS = {"DBSCAN": dbscan}
+OUTLIER_DETECTION_METHODS = {
+    "DBSCAN": dbscan,
+    "IsolationForest": isolation_forest,
+    "SVM": svm,
+    "LocalOutlierFactor": lof,
+}

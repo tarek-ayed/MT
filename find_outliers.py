@@ -1,7 +1,13 @@
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
 from utils.parser import parse_args_outliers
 from utils.config import DATASETS, OUTLIER_DETECTION_METHODS
@@ -42,27 +48,37 @@ class_loaders = [
 ]
 outlier_labels = [test_set.get_class(k)[1] for k in range(n_classes)]
 
-predictions = []
+predictions = dict(
+    (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
+)
+predictions_scores = dict(
+    (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
+)
+
+for class_ in range(n_classes):
+
+    counter = 0
+    for imgs, _ in class_loaders[class_]:
+        counter += 1
+        if use_cuda:
+            imgs = imgs.cuda()
+        z_backbone = model.backbone(imgs)
+        scores = torch.cdist(z_backbone, z_backbone).detach().cpu().numpy()
+    assert counter == 1
+
+    for outlier_detection_name in outlier_detection_methods:
+
+        detect_outliers = OUTLIER_DETECTION_METHODS[outlier_detection_name]
+        predicted_labels, predicted_scores = detect_outliers(scores)
+        predictions[outlier_detection_name].append(predicted_labels)
+        if predicted_scores is not None:
+            predictions_scores[outlier_detection_name].append(predicted_scores)
+
+y_true = np.concatenate(outlier_labels, axis=0)
 
 for outlier_detection_name in outlier_detection_methods:
 
-    detect_outliers = OUTLIER_DETECTION_METHODS[outlier_detection_name]
-
-    for class_ in range(n_classes):
-
-        counter = 0
-        for imgs, _ in class_loaders[class_]:
-            counter += 1
-            if use_cuda:
-                imgs = imgs.cuda()
-            z_backbone = model.backbone(imgs)
-            scores = torch.cdist(z_backbone, z_backbone).detach().cpu().numpy()
-        assert counter == 1
-
-        predictions.append(detect_outliers(scores))
-
-    all_preds = np.concatenate(predictions, axis=0)
-    y_true = np.concatenate(outlier_labels, axis=0)
+    all_preds = np.concatenate(predictions[outlier_detection_name], axis=0)
 
     print(
         f"Accuracy with {outlier_detection_name}: {accuracy_score(all_preds, y_true)}"
@@ -72,3 +88,7 @@ for outlier_detection_name in outlier_detection_methods:
         f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true)}"
     )
     print(f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true)}")
+    if len(predictions_scores[outlier_detection_name]) > 0:
+        print(
+            f"ROC AUC with {outlier_detection_name}: {roc_auc_score(all_preds, y_true)}"
+        )
