@@ -35,14 +35,13 @@ model = torch.load(path_to_model, map_location=torch.device(device))
 model.eval()
 
 test_set = DATASETS[dataset]
-test_set.set_swaps(n_outliers=50)
+test_set.set_swaps(n_outliers=n_outliers)
 
 test_set.activate_outlier_mode()
 class_loaders = [
     DataLoader(
         test_set,
         sampler=test_set.get_class(k)[0],  # images
-        batch_size=64,
     )
     for k in range(n_classes)
 ]
@@ -57,20 +56,22 @@ predictions_scores = dict(
 
 for class_ in range(n_classes):
 
+    # TODO: réécrire l'inférence
     counter = 0
     for imgs, _ in class_loaders[class_]:
         counter += 1
         if use_cuda:
             imgs = imgs.cuda()
-        z_backbone = model.backbone(imgs)
-        scores = torch.cdist(z_backbone, z_backbone).detach().cpu().numpy()
+        features_backbone = model.backbone(imgs)
     assert counter == 1
 
     for outlier_detection_name in outlier_detection_methods:
 
         detect_outliers = OUTLIER_DETECTION_METHODS[outlier_detection_name]
-        predicted_labels, predicted_scores = detect_outliers(scores)
+        predicted_labels, predicted_scores = detect_outliers(features_backbone)
+        
         predictions[outlier_detection_name].append(predicted_labels)
+
         if predicted_scores is not None:
             predictions_scores[outlier_detection_name].append(predicted_scores)
 
@@ -92,3 +93,4 @@ for outlier_detection_name in outlier_detection_methods:
         print(
             f"ROC AUC with {outlier_detection_name}: {roc_auc_score(all_preds, y_true)}"
         )
+    print("------------------------------------------")
