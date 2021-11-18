@@ -42,6 +42,7 @@ class_loaders = [
     DataLoader(
         test_set,
         sampler=test_set.get_class(k)[0],  # images
+        batch_size=64,
     )
     for k in range(n_classes)
 ]
