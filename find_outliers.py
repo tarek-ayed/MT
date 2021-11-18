@@ -83,15 +83,15 @@ for outlier_detection_name in outlier_detection_methods:
     all_preds = np.concatenate(predictions[outlier_detection_name], axis=0)
 
     print(
-        f"Accuracy with {outlier_detection_name}: {accuracy_score(all_preds, y_true)}"
+        f"Accuracy with {outlier_detection_name}: {accuracy_score(all_preds, y_true):.4f}"
     )
-    print(f"F1 Score with {outlier_detection_name}: {f1_score(all_preds, y_true)}")
+    print(f"F1 Score with {outlier_detection_name}: {f1_score(all_preds, y_true):.4f}")
     print(
-        f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true)}"
+        f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true):.4f}"
     )
-    print(f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true)}")
+    print(f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true):.4f}")
     if len(predictions_scores[outlier_detection_name]) > 0:
         print(
-            f"ROC AUC with {outlier_detection_name}: {roc_auc_score(all_preds, y_true)}"
+            f"ROC AUC with {outlier_detection_name}: {roc_auc_score(all_preds, y_true):.4f}"
         )
     print("------------------------------------------")
