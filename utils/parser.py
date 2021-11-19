@@ -27,7 +27,7 @@ def parse_args_outliers():
 
     parser.add_argument(
         "--outlier_detection_methods",
-        default=["DBSCAN"],
+        default=["DBSCAN", "IsolationForest", "LocalOutlierFactor", "KNN"],
         type=str,
         nargs="*",
         help="Specify which outlier detection methods to use",

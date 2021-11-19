@@ -70,7 +70,7 @@ for class_ in range(n_classes):
 
         detect_outliers = OUTLIER_DETECTION_METHODS[outlier_detection_name]
         predicted_labels, predicted_scores = detect_outliers(features_backbone)
-        
+
         predictions[outlier_detection_name].append(predicted_labels)
 
         if predicted_scores is not None:
@@ -89,9 +89,12 @@ for outlier_detection_name in outlier_detection_methods:
     print(
         f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true):.4f}"
     )
-    print(f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true):.4f}")
+    print(
+        f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true):.4f}"
+    )
     if len(predictions_scores[outlier_detection_name]) > 0:
+        all_scores = np.concatenate(predictions_scores[outlier_detection_name], axis=0)
         print(
-            f"ROC AUC with {outlier_detection_name}: {roc_auc_score(all_preds, y_true):.4f}"
+            f"ROC AUC with {outlier_detection_name}: {roc_auc_score(y_true, all_scores):.4f}"
         )
     print("------------------------------------------")

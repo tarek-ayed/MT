@@ -32,7 +32,7 @@ def dbscan(features_backbone):
 def isolation_forest(features_backbone):
     features_backbone = to_numpy(features_backbone)
     estimator = IsolationForest(n_estimators=500).fit(features_backbone)
-    return estimator.predict(features_backbone) < 0, estimator.score_samples(
+    return estimator.predict(features_backbone) < 0, -estimator.score_samples(
         features_backbone
     )
 
@@ -40,7 +40,7 @@ def isolation_forest(features_backbone):
 def svm(features_backbone):
     features_backbone = to_numpy(features_backbone)
     estimator = OneClassSVM().fit(features_backbone)
-    return estimator.predict(features_backbone) < 0, estimator.score_samples(
+    return estimator.predict(features_backbone) < 0, -estimator.score_samples(
         features_backbone
     )
 
@@ -49,13 +49,13 @@ def lof(features_backbone):
     features_backbone = to_numpy(features_backbone)
     estimator = LocalOutlierFactor()
     predictions = estimator.fit_predict(features_backbone)
-    return predictions < 0, estimator.negative_outlier_factor_
+    return predictions < 0, -estimator.negative_outlier_factor_
 
 
 def elliptic(features_backbone):
     features_backbone = to_numpy(features_backbone)
     estimator = EllipticEnvelope().fit(features_backbone)
-    return estimator.predict(features_backbone) < 0, estimator.score_samples(
+    return estimator.predict(features_backbone) < 0, -estimator.score_samples(
         features_backbone
     )
 
@@ -65,4 +65,4 @@ def knn(features_backbone):
     estimator = KNN().fit(features_backbone)
     return estimator.predict(features_backbone), estimator.predict_proba(
         features_backbone
-    )
+    )[:,1]
