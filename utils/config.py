@@ -1,4 +1,6 @@
-from outlier_set import OutlierSet
+import torch
+
+from outlier_set import OutlierCIFAR, OutlierEasySet
 from utils.outlier_detection import (
     call_with_pca,
     dbscan,
@@ -11,8 +13,8 @@ from utils.outlier_detection import (
 
 
 DATASETS = {
-    "CUB": OutlierSet(specs_file="./data/CUB/test.json", training=False),
-    # "CIFAR": "./data/CIFAR/test.json",
+    "CUB": OutlierEasySet(specs_file="./data/CUB/test.json", training=False, image_size=224),
+    "CIFAR": OutlierCIFAR("./data/CIFAR/test.json", training=False, image_size=32, download=True, root='data/CIFAR'),
 }
 
 OUTLIER_DETECTION_METHODS = {

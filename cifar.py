@@ -18,7 +18,7 @@ class FewShotCIFAR100(CIFAR100):
         specs_file: Path,
         image_size: int = 32,
         training: bool = False,
-        download: bool = False,
+        download: bool = True,
     ):
 
         transform = (

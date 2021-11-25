@@ -14,7 +14,7 @@ from utils.config import DATASETS, OUTLIER_DETECTION_METHODS
 
 
 args = parse_args_outliers()
-print("------ Parameters for test_sparsity ------")
+print("------ Parameters for find_outliers ------")
 for parameter, value in args.__dict__.items():
     print(f"{parameter}: {value}")
 print("------------------------------------------")
@@ -25,28 +25,33 @@ path_to_model = args.model_path
 dataset = args.dataset
 n_classes = args.n_classes
 outlier_detection_methods = args.outlier_detection_methods
-n_outliers = args.n_outliers
+proportion_outliers = args.proportion_outliers
 
 if use_cuda is None:
     use_cuda = torch.cuda.is_available()
 device = "cuda" if use_cuda else "cpu"
 
+torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_resnet56", pretrained=True)
 model = torch.load(path_to_model, map_location=torch.device(device))
 model.eval()
 
 test_set = DATASETS[dataset]
-test_set.set_swaps(n_outliers=n_outliers)
+test_set.set_swaps(proportion_outliers=proportion_outliers)
 
 test_set.activate_outlier_mode()
-class_loaders = [
-    DataLoader(
+
+classes_to_fetch = set(test_set.labels)
+class_loaders = {
+    class_: DataLoader(
         test_set,
-        sampler=test_set.get_class(k)[0],  # images
+        sampler=test_set.get_class(class_),  # image indices
         batch_size=64,
     )
-    for k in range(n_classes)
+    for class_ in classes_to_fetch
+}
+outlier_labels = [
+    test_set.get_class_outlier_labels(class_) for class_ in classes_to_fetch
 ]
-outlier_labels = [test_set.get_class(k)[1] for k in range(n_classes)]
 
 predictions = dict(
     (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
@@ -55,16 +60,16 @@ predictions_scores = dict(
     (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
 )
 
-for class_ in range(n_classes):
+for class_ in classes_to_fetch:
 
-    # TODO: réécrire l'inférence
     counter = 0
+    features_backbone_list = []
     for imgs, _ in class_loaders[class_]:
         counter += 1
         if use_cuda:
             imgs = imgs.cuda()
-        features_backbone = model.backbone(imgs)
-    assert counter == 1
+        features_backbone_list.append(model.backbone(imgs))
+    features_backbone = torch.cat(features_backbone_list)
 
     for outlier_detection_name in outlier_detection_methods:
 

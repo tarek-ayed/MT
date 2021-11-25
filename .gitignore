@@ -1,5 +1,7 @@
 data/CUB/images
 data/CUB/images.tgz
+data/CIFAR/cifar-100-python
+data/CIFAR/cifar-100-python.tar.gz
 .DS_Store
 tarek-mt
 .vscode/

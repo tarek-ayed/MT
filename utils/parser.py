@@ -34,8 +34,8 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
-        "--n_outliers",
-        default=50,
+        "--proportion_outliers",
+        default=0.1,
         type=int,
         help="Number of outliers to add in dataset",
     )
