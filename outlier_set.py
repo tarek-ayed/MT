@@ -66,7 +66,7 @@ def define_outlier_set(dataset_object):
         def get_class(self, class_index):
             return [i for i, label in enumerate(self.labels) if label == class_index]
 
-        def get_class_with_outliers(self, class_index=None, proportion_outliers=0.1):
+        def get_class_with_outliers(self, class_index=None, proportion_outliers=0.1, limit_num_samples=None):
             
             if class_index is None:
                 class_index = np.random.choice(self.labels)
@@ -77,6 +77,9 @@ def define_outlier_set(dataset_object):
             other_indices = [
                 i for i, label in enumerate(self.labels) if label != class_index
             ]
+            
+            if limit_num_samples is not None and limit_num_samples < len(item_indices):
+                item_indices = list(np.random.choice(item_indices, size=limit_num_samples))
 
             num_outliers = int(len(item_indices) * proportion_outliers)
             indices_to_swap = np.random.choice(range(len(item_indices)), size=num_outliers)

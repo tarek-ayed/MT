@@ -19,6 +19,10 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
+        "--n_shot", default=None, type=int, help="Number of items per sample"
+    )
+
+    parser.add_argument(
         "--use_cuda",
         default=None,
         type=bool,

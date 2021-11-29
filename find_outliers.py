@@ -28,6 +28,7 @@ dataset = args.dataset
 outlier_detection_methods = args.outlier_detection_methods
 proportion_outliers = args.proportion_outliers
 num_samples = args.n_samples
+n_shot = args.n_shot
 
 if use_cuda is None:
     use_cuda = torch.cuda.is_available()
@@ -42,7 +43,7 @@ test_set = DATASETS[dataset]
 outlier_labels = []
 class_loaders = []
 for _ in range(num_samples):
-    image_indices, labels = test_set.get_class_with_outliers()
+    image_indices, labels = test_set.get_class_with_outliers(limit_num_samples=n_shot)
     class_loaders.append(
         DataLoader(
             test_set,
