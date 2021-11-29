@@ -16,6 +16,8 @@ def to_numpy(vectors):
 
 
 def dbscan(features_backbone):
+    if type(features_backbone) is np.ndarray:
+        features_backbone = torch.tensor(features_backbone)
     scores = to_numpy(torch.cdist(features_backbone, features_backbone))
     clustering = DBSCAN(eps=0.6, min_samples=1, metric="precomputed").fit(
         scores / scores.max()
@@ -56,7 +58,9 @@ def elliptic(features_backbone):
 
 def knn(features_backbone):
     features_backbone = to_numpy(features_backbone)
-    estimator = KNN().fit(features_backbone)
+    estimator = KNN(n_neighbors=min(4, len(features_backbone) - 1)).fit(
+        features_backbone
+    )
     return (
         estimator.predict(features_backbone),
         estimator.predict_proba(features_backbone)[:, 1],

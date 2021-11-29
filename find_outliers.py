@@ -8,8 +8,9 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
-    roc_curve
+    roc_curve,
 )
+import tqdm
 
 from utils.parser import parse_args_outliers
 from utils.config import DATASETS, OUTLIER_DETECTION_METHODS
@@ -32,6 +33,8 @@ n_shot = args.n_shot
 
 if use_cuda is None:
     use_cuda = torch.cuda.is_available()
+if use_cuda and args.gpu_to_use:
+    torch.cuda.set_device(args.gpu_to_use)
 device = "cuda" if use_cuda else "cpu"
 
 torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_resnet56", pretrained=True)
@@ -39,20 +42,11 @@ model = torch.load(path_to_model, map_location=torch.device(device))
 model.eval()
 
 test_set = DATASETS[dataset]
+print("Computing backbone features ...")
+test_set.set_model(model, use_cuda)
+print("Done.")
 
 outlier_labels = []
-class_loaders = []
-for _ in range(num_samples):
-    image_indices, labels = test_set.sample_class_with_outliers(limit_num_samples=n_shot)
-    class_loaders.append(
-        DataLoader(
-            test_set,
-            sampler=image_indices,  # image indices
-            batch_size=64,
-        )
-    )
-    outlier_labels.append(labels)
-
 predictions = dict(
     (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
 )
@@ -60,16 +54,13 @@ predictions_scores = dict(
     (outlier_detection_name, []) for outlier_detection_name in outlier_detection_methods
 )
 
-for dataloader in class_loaders:
+print("Computing outlier detection predictions...")
+for _ in tqdm.tqdm(range(num_samples)):
 
-    counter = 0
-    features_backbone_list = []
-    for imgs, _ in dataloader:
-        counter += 1
-        if use_cuda:
-            imgs = imgs.cuda()
-        features_backbone_list.append(model.backbone(imgs))
-    features_backbone = torch.cat(features_backbone_list)
+    features_backbone, labels = test_set.sample_class_features_with_outliers(
+        proportion_outliers=proportion_outliers, limit_num_samples=n_shot
+    )
+    outlier_labels.append(labels)
 
     for outlier_detection_name in outlier_detection_methods:
 
@@ -101,13 +92,11 @@ for outlier_detection_name in outlier_detection_methods:
         all_scores = np.concatenate(predictions_scores[outlier_detection_name], axis=0)
         try:
             auc_score = roc_auc_score(y_true, all_scores)
-            print(
-                f"ROC AUC with {outlier_detection_name}: {auc_score:.4f}"
-            )
+            print(f"ROC AUC with {outlier_detection_name}: {auc_score:.4f}")
             fpr, tpr, _ = roc_curve(y_true, all_scores)
             plt.clf()
-            plt.plot(fpr, tpr, label = f'AUC = {auc_score:.4f}')
-            plt.title(f'ROC Curve using {outlier_detection_name} on {dataset}')
+            plt.plot(fpr, tpr, label=f"AUC = {auc_score:.4f}")
+            plt.title(f"ROC Curve using {outlier_detection_name} on {dataset}")
             plt.savefig(f"ROC_{outlier_detection_name}")
         except ValueError:
             print(f"Unable to compute ROC Curve for {outlier_detection_name}")

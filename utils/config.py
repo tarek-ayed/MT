@@ -11,8 +11,16 @@ from utils.outlier_detection import (
 
 
 DATASETS = {
-    "CUB": OutlierEasySet(specs_file="./data/CUB/test.json", training=False, image_size=224),
-    "CIFAR": OutlierCIFAR("./data/CIFAR/test.json", training=False, image_size=32, download=True, root='data/CIFAR'),
+    "CUB": OutlierEasySet(
+        specs_file="./data/CUB/test.json", training=False, image_size=224
+    ),
+    "CIFAR": OutlierCIFAR(
+        "./data/CIFAR/test.json",
+        training=False,
+        image_size=32,
+        download=True,
+        root="data/CIFAR",
+    ),
 }
 
 OUTLIER_DETECTION_METHODS = {

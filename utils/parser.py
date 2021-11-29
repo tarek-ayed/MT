@@ -19,6 +19,13 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
+        "--gpu_to_use",
+        default=None,
+        type=int,
+        help="Number of outlier detection samples",
+    )
+
+    parser.add_argument(
         "--n_shot", default=None, type=int, help="Number of items per sample"
     )
 
@@ -40,7 +47,7 @@ def parse_args_outliers():
     parser.add_argument(
         "--proportion_outliers",
         default=0.1,
-        type=int,
+        type=float,
         help="Number of outliers to add in dataset",
     )
 
