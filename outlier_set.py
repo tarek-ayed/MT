@@ -35,11 +35,18 @@ def define_outlier_set(dataset_object):
             label = self.swapped_labels[item]
             return (img, label)
 
-        def set_swaps(
-            self, swaps: List[Tuple[int, int]] = None, proportion_outliers=0.1
-        ):
-            # TODO: implement or delete
-            pass
+        def set_swaps(self, swaps: List[Tuple[int, int]] = None, n_outliers=500):
+            if swaps is not None:
+                self.swaps = swaps
+                self._set_swaps()
+            else:
+                outlier_indices = np.random.choice(len(self.labels), n_outliers)
+                self.swaps = [
+                    (outlier_indices[ind], outlier_indices[ind + 1])
+                    for ind in range(0, n_outliers // 2, 2)
+                ]
+                self._set_swaps()
+            return self.swaps
 
         def _swap_labels(self):
             for index1, index2 in self.swaps:
@@ -57,16 +64,31 @@ def define_outlier_set(dataset_object):
             return self.swaps
 
         def get_class(self, class_index):
-            # TODO: implement sampling logic here
             return [i for i, label in enumerate(self.labels) if label == class_index]
 
-        def get_class_outlier_labels(self, class_index):
-            # TODO: implement sampling logic here
-            return [
-                self.outlier_labels[i]
-                for i, label in enumerate(self.labels)
-                if label == class_index
+        def get_class_with_outliers(self, class_index=None, proportion_outliers=0.1):
+            
+            if class_index is None:
+                class_index = np.random.choice(self.labels)
+
+            item_indices = [
+                i for i, label in enumerate(self.labels) if label == class_index
             ]
+            other_indices = [
+                i for i, label in enumerate(self.labels) if label != class_index
+            ]
+
+            num_outliers = int(len(item_indices) * proportion_outliers)
+            indices_to_swap = np.random.choice(range(len(item_indices)), size=num_outliers)
+            swap_target_images = np.random.choice(other_indices, size=num_outliers)
+
+            outlier_labels = [False] * len(item_indices)
+
+            for swap_index, item_index in enumerate(indices_to_swap):
+                item_indices[item_index] = swap_target_images[swap_index]
+                outlier_labels[item_index] = True
+
+            return item_indices, outlier_labels
 
         def activate_outlier_mode(self):
             self.outlier_labels = self.get_outlier_labels()
