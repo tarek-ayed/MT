@@ -99,13 +99,16 @@ for outlier_detection_name in outlier_detection_methods:
     )
     if len(predictions_scores[outlier_detection_name]) > 0:
         all_scores = np.concatenate(predictions_scores[outlier_detection_name], axis=0)
-        auc_score = roc_auc_score(y_true, all_scores)
-        print(
-            f"ROC AUC with {outlier_detection_name}: {auc_score:.4f}"
-        )
-        fpr, tpr, _ = roc_curve(y_true, all_scores)
-        plt.clf()
-        plt.plot(fpr, tpr, label = f'AUC = {auc_score:.4f}')
-        plt.title(f'ROC Curve using {outlier_detection_name} on {dataset}')
-        plt.savefig(f"ROC_{outlier_detection_name}")
+        try:
+            auc_score = roc_auc_score(y_true, all_scores)
+            print(
+                f"ROC AUC with {outlier_detection_name}: {auc_score:.4f}"
+            )
+            fpr, tpr, _ = roc_curve(y_true, all_scores)
+            plt.clf()
+            plt.plot(fpr, tpr, label = f'AUC = {auc_score:.4f}')
+            plt.title(f'ROC Curve using {outlier_detection_name} on {dataset}')
+            plt.savefig(f"ROC_{outlier_detection_name}")
+        except ValueError:
+            print(f"Unable to compute ROC Curve for {outlier_detection_name}")
     print("------------------------------------------")
