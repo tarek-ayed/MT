@@ -14,6 +14,7 @@ def to_numpy(vectors):
         return vectors
     return vectors.detach().cpu().numpy()
 
+
 def dbscan(features_backbone):
     scores = to_numpy(torch.cdist(features_backbone, features_backbone))
     clustering = DBSCAN(eps=0.6, min_samples=1, metric="precomputed").fit(
@@ -56,14 +57,18 @@ def elliptic(features_backbone):
 def knn(features_backbone):
     features_backbone = to_numpy(features_backbone)
     estimator = KNN().fit(features_backbone)
-    return estimator.predict(features_backbone), estimator.predict_proba(
-        features_backbone
-    )[:,1]
+    return (
+        estimator.predict(features_backbone),
+        estimator.predict_proba(features_backbone)[:, 1],
+    )
 
 
 def call_with_pca(outlier_detection_func):
     def func_with_pca(features_backbone):
-        features_backbone = PCA(n_components=None).fit_transform(to_numpy(features_backbone))
+        features_backbone = PCA(n_components=None).fit_transform(
+            to_numpy(features_backbone)
+        )
         # n_components set to None means taking min(n_samples, n_features)
         return outlier_detection_func(features_backbone)
+
     return func_with_pca

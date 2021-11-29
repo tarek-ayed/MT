@@ -1,5 +1,3 @@
-import torch
-
 from outlier_set import OutlierCIFAR, OutlierEasySet
 from utils.outlier_detection import (
     call_with_pca,

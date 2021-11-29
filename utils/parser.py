@@ -15,7 +15,11 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
-        "--n_classes", default=30, type=int, help="Number of classes in the dataset"
+        "--n_samples", default=200, type=int, help="Number of outlier detection samples"
+    )
+
+    parser.add_argument(
+        "--n_shot", default=None, type=int, help="Number of items per sample"
     )
 
     parser.add_argument(
