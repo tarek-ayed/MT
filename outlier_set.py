@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import List, Tuple, Union
 from easyfsl.data_tools import EasySet
 import numpy as np
+import torch
+from torch.utils.data.dataloader import DataLoader
 
 from cifar import FewShotCIFAR100
 
@@ -27,6 +29,24 @@ def define_outlier_set(dataset_object):
             if swaps is not None:
                 self._swap_labels()
             self.outlier_mode = False
+
+            self.features = None
+            self.model = None
+            self.device = None
+
+        def set_model(self, model, device):
+            self.model = model
+            self.device = device
+            self.compute_features()
+
+        def compute_features(self):
+            features_array_list = []
+            for imgs, _ in DataLoader(self, batch_size=64):
+                imgs = imgs.to(torch.device(self.device))
+                features_array_list.append(
+                    self.model.backbone(imgs).detach().cpu().numpy()
+                )
+            self.features = np.concatenate(features_array_list, axis=0)
 
         def __getitem__(self, item: int):
             img, _ = super().__getitem__(item)
@@ -64,7 +84,7 @@ def define_outlier_set(dataset_object):
         def select_indices_for_label(self, class_index):
             return [i for i, label in enumerate(self.labels) if label == class_index]
 
-        def sample_class_with_outliers(
+        def sample_class_features_with_outliers(
             self, class_index=None, proportion_outliers=0.1, limit_num_samples=None
         ):
 
@@ -95,7 +115,7 @@ def define_outlier_set(dataset_object):
                 item_indices[item_index] = swap_target_images[swap_index]
                 outlier_labels[item_index] = True
 
-            return item_indices, outlier_labels
+            return np.take(self.features, item_indices, axis=0), outlier_labels
 
         def activate_outlier_mode(self):
             self.outlier_labels = self.get_outlier_labels()

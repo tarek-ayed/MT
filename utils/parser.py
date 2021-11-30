@@ -23,10 +23,10 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
-        "--use_cuda",
+        "--device",
         default=None,
-        type=bool,
-        help="Specify whether to use GPU. By default uses it when available",
+        type=str,
+        help="Specify whether to use GPU. By default uses it when available. You can also specify which GPU to use.",
     )
 
     parser.add_argument(
@@ -40,7 +40,7 @@ def parse_args_outliers():
     parser.add_argument(
         "--proportion_outliers",
         default=0.1,
-        type=int,
+        type=float,
         help="Number of outliers to add in dataset",
     )
 
