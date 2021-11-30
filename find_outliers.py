@@ -43,7 +43,7 @@ test_set = DATASETS[dataset]
 outlier_labels = []
 class_loaders = []
 for _ in range(num_samples):
-    image_indices, labels = test_set.get_class_with_outliers(limit_num_samples=n_shot)
+    image_indices, labels = test_set.sample_class_with_outliers(limit_num_samples=n_shot)
     class_loaders.append(
         DataLoader(
             test_set,
