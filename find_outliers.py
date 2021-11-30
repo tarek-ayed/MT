@@ -1,19 +1,10 @@
-from torch.utils.data import DataLoader
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-    roc_curve,
-)
 import tqdm
 
 from utils.parser import parse_args_outliers
 from utils.config import DATASETS, OUTLIER_DETECTION_METHODS
+from utils.metrics import print_metrics
 
 
 args = parse_args_outliers()
@@ -75,26 +66,4 @@ for outlier_detection_name in outlier_detection_methods:
 
     all_preds = np.concatenate(predictions[outlier_detection_name], axis=0)
 
-    print(
-        f"Accuracy with {outlier_detection_name}: {accuracy_score(all_preds, y_true):.4f}"
-    )
-    print(f"F1 Score with {outlier_detection_name}: {f1_score(all_preds, y_true):.4f}")
-    print(
-        f"Precision with {outlier_detection_name}: {precision_score(all_preds, y_true):.4f}"
-    )
-    print(
-        f"Recall with {outlier_detection_name}: {recall_score(all_preds, y_true):.4f}"
-    )
-    if len(predictions_scores[outlier_detection_name]) > 0:
-        all_scores = np.concatenate(predictions_scores[outlier_detection_name], axis=0)
-        try:
-            auc_score = roc_auc_score(y_true, all_scores)
-            print(f"ROC AUC with {outlier_detection_name}: {auc_score:.4f}")
-            fpr, tpr, _ = roc_curve(y_true, all_scores)
-            plt.clf()
-            plt.plot(fpr, tpr, label=f"AUC = {auc_score:.4f}")
-            plt.title(f"ROC Curve using {outlier_detection_name} on {dataset}")
-            plt.savefig(f"ROC_{outlier_detection_name}")
-        except ValueError:
-            print(f"Unable to compute ROC Curve for {outlier_detection_name}")
-    print("------------------------------------------")
+    print_metrics(dataset, predictions_scores, outlier_detection_name, y_true, all_preds)
