@@ -19,21 +19,14 @@ def parse_args_outliers():
     )
 
     parser.add_argument(
-        "--gpu_to_use",
-        default=None,
-        type=int,
-        help="Number of outlier detection samples",
-    )
-
-    parser.add_argument(
         "--n_shot", default=None, type=int, help="Number of items per sample"
     )
 
     parser.add_argument(
-        "--use_cuda",
+        "--device",
         default=None,
-        type=bool,
-        help="Specify whether to use GPU. By default uses it when available",
+        type=str,
+        help="Specify whether to use GPU. By default uses it when available. You can also specify which GPU to use.",
     )
 
     parser.add_argument(

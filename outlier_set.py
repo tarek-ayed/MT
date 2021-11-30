@@ -13,11 +13,9 @@ def define_outlier_set(dataset_object):
         def __init__(
             self,
             specs_file: Union[Path, str],
-            model_to_apply=None,
             training=False,
             swaps=None,
             image_size=224,
-            use_cuda=True,
             **kwargs
         ):
             super().__init__(
@@ -34,18 +32,17 @@ def define_outlier_set(dataset_object):
 
             self.features = None
             self.model = None
-            self.use_cuda = None
+            self.device = None
 
-        def set_model(self, model, use_cuda=True):
+        def set_model(self, model, device):
             self.model = model
-            self.use_cuda = use_cuda
+            self.device = device
             self.compute_features()
 
         def compute_features(self):
             features_array_list = []
             for imgs, _ in DataLoader(self, batch_size=64):
-                if self.use_cuda:
-                    imgs = imgs.cuda()
+                imgs = imgs.to(torch.device(self.device))
                 features_array_list.append(
                     self.model.backbone(imgs).detach().cpu().numpy()
                 )

@@ -16,8 +16,7 @@ def to_numpy(vectors):
 
 
 def dbscan(features_backbone):
-    if type(features_backbone) is np.ndarray:
-        features_backbone = torch.tensor(features_backbone)
+    features_backbone = torch.tensor(features_backbone)
     scores = to_numpy(torch.cdist(features_backbone, features_backbone))
     clustering = DBSCAN(eps=0.6, min_samples=1, metric="precomputed").fit(
         scores / scores.max()

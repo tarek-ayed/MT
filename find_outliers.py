@@ -23,7 +23,7 @@ for parameter, value in args.__dict__.items():
 print("------------------------------------------")
 
 
-use_cuda = args.use_cuda
+device = args.device
 path_to_model = args.model_path
 dataset = args.dataset
 outlier_detection_methods = args.outlier_detection_methods
@@ -31,11 +31,8 @@ proportion_outliers = args.proportion_outliers
 num_samples = args.n_samples
 n_shot = args.n_shot
 
-if use_cuda is None:
-    use_cuda = torch.cuda.is_available()
-if use_cuda and args.gpu_to_use:
-    torch.cuda.set_device(args.gpu_to_use)
-device = "cuda" if use_cuda else "cpu"
+if device is None:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
 torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_resnet56", pretrained=True)
 model = torch.load(path_to_model, map_location=torch.device(device))
@@ -43,7 +40,7 @@ model.eval()
 
 test_set = DATASETS[dataset]
 print("Computing backbone features ...")
-test_set.set_model(model, use_cuda)
+test_set.set_model(model, device)
 print("Done.")
 
 outlier_labels = []
