@@ -34,10 +34,10 @@ from torch.optim import Adam
 
 from resnet_cifar import resnet18, resnet50
 
-BACKBONE = resnet50
+BACKBONE = resnet18
 
 #convolutional_network = BACKBONE(pretrained=False)
-convolutional_network = BACKBONE(num_classes=100)
+convolutional_network = BACKBONE()
 convolutional_network.fc = nn.Flatten()
 model = PrototypicalNetworks(convolutional_network).cuda()
 
