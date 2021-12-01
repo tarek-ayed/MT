@@ -5,7 +5,7 @@ from datasets.cifar import FewShotCIFAR100
 from datasets.mini_imagenet import MiniImageNet
 import torch
 
-GPU_TO_USE = 0
+GPU_TO_USE = 1
 torch.cuda.set_device(GPU_TO_USE)
 
 # train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
@@ -30,14 +30,14 @@ train_loader = DataLoader(
 from easyfsl.methods import PrototypicalNetworks
 from torch import nn
 from torch.optim import Adam
-from torchvision.models import resnet18, resnet50
+#from torchvision.models import resnet18, resnet50
 
-# from resnet_cifar import resnet18, resnet50
+from resnet_cifar import resnet18, resnet50
 
-BACKBONE = resnet50
+BACKBONE = resnet18
 
-convolutional_network = BACKBONE(pretrained=False)
-#convolutional_network = BACKBONE(num_classes=100)
+#convolutional_network = BACKBONE(pretrained=False)
+convolutional_network = BACKBONE()
 convolutional_network.fc = nn.Flatten()
 model = PrototypicalNetworks(convolutional_network).cuda()
 
