@@ -5,7 +5,7 @@ from datasets.cifar import FewShotCIFAR100
 from datasets.mini_imagenet import MiniImageNet
 import torch
 
-GPU_TO_USE = 0
+GPU_TO_USE = 1
 torch.cuda.set_device(GPU_TO_USE)
 
 # train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
