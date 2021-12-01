@@ -1,4 +1,4 @@
-from outlier_set import OutlierCIFAR, OutlierEasySet
+from datasets.outlier_set import OutlierCIFAR, OutlierEasySet, OutlierMiniImageNet
 from utils.outlier_detection import (
     call_with_pca,
     dbscan,
@@ -11,15 +11,26 @@ from utils.outlier_detection import (
 
 
 DATASETS = {
-    "CUB": OutlierEasySet(
-        specs_file="./data/CUB/test.json", training=False, image_size=224
+    "CUB": (
+        lambda: OutlierEasySet(
+            specs_file="data/CUB/test.json", training=False, image_size=224
+        )
     ),
-    "CIFAR": OutlierCIFAR(
-        "./data/CIFAR/test.json",
-        training=False,
-        image_size=32,
-        download=True,
-        root="data/CIFAR",
+    "CIFAR": (
+        lambda: OutlierCIFAR(
+            "data/CIFAR/test.json",
+            training=False,
+            image_size=32,
+            download=True,
+            root="data/CIFAR",
+        )
+    ),
+    "MiniImageNet": (
+        lambda: OutlierMiniImageNet(
+            root="data/miniImageNet/mini_imagenet",
+            specs_file="data/miniImageNet/specs/test_images.csv",
+            image_size=84,
+        )
     ),
 }
 
