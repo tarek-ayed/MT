@@ -30,14 +30,14 @@ train_loader = DataLoader(
 from easyfsl.methods import PrototypicalNetworks
 from torch import nn
 from torch.optim import Adam
-from torchvision.models import resnet18, resnet50
+#from torchvision.models import resnet18, resnet50
 
-# from resnet_cifar import resnet18, resnet50
+from resnet_cifar import resnet18, resnet50
 
 BACKBONE = resnet50
 
-convolutional_network = BACKBONE(pretrained=False)
-#convolutional_network = BACKBONE(num_classes=100)
+#convolutional_network = BACKBONE(pretrained=False)
+convolutional_network = BACKBONE(num_classes=100)
 convolutional_network.fc = nn.Flatten()
 model = PrototypicalNetworks(convolutional_network).cuda()
 
