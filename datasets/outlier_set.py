@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List, Tuple, Union
 from easyfsl.data_tools import EasySet
@@ -5,7 +6,8 @@ import numpy as np
 import torch
 from torch.utils.data.dataloader import DataLoader
 
-from cifar import FewShotCIFAR100
+from datasets.cifar import FewShotCIFAR100
+from datasets.mini_imagenet import MiniImageNet
 
 
 def define_outlier_set(dataset_object):
@@ -126,6 +128,6 @@ def define_outlier_set(dataset_object):
 
     return OutlierSet
 
-
 OutlierCIFAR = define_outlier_set(FewShotCIFAR100)
 OutlierEasySet = define_outlier_set(EasySet)
+OutlierMiniImageNet = define_outlier_set(MiniImageNet)
