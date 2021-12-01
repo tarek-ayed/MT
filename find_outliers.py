@@ -29,7 +29,7 @@ torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_resnet56", pretrained
 model = torch.load(path_to_model, map_location=torch.device(device))
 model.eval()
 
-test_set = DATASETS[dataset]
+test_set = DATASETS[dataset]()
 print("Computing backbone features ...")
 test_set.set_model(model, device)
 print("Done.")

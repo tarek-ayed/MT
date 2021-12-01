@@ -5,7 +5,7 @@ from datasets.cifar import FewShotCIFAR100
 from datasets.mini_imagenet import MiniImageNet
 import torch
 
-GPU_TO_USE = 1
+GPU_TO_USE = 0
 torch.cuda.set_device(GPU_TO_USE)
 
 # train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
@@ -36,7 +36,7 @@ from torchvision.models import resnet18, resnet50
 
 BACKBONE = resnet50
 
-convolutional_network = BACKBONE(pretrained=True)
+convolutional_network = BACKBONE(pretrained=False)
 #convolutional_network = BACKBONE(num_classes=100)
 convolutional_network.fc = nn.Flatten()
 model = PrototypicalNetworks(convolutional_network).cuda()
@@ -70,5 +70,5 @@ test_loader = DataLoader(
 accuracy = model.evaluate(test_loader)
 print(f"Average accuracy : {(100 * accuracy):.2f}")
 #%%
-torch.save(model, f"{BACKBONE.__name__}_{train_set.__class__.__name__}_mock")
+torch.save(model, f"{BACKBONE.__name__}_{train_set.__class__.__name__}_valid")
 # %%

@@ -15,8 +15,8 @@ NORMALIZE = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 
 class MiniImageNet(VisionDataset):
     def __init__(
         self,
-        root: Path,
-        specs_file: Path,
+        root: str,
+        specs_file: str,
         image_size: int = 84,
         target_transform: Optional[Callable] = None,
         training: bool = False,
