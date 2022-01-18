@@ -12,3 +12,4 @@ __pycache__/
 models
 nohup.out
 ROCS
+notebook.py
