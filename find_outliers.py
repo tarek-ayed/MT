@@ -65,10 +65,18 @@ for _ in tqdm.tqdm(range(num_samples)):
 
 y_true = np.concatenate(outlier_labels, axis=0)
 
-for outlier_detection_name in outlier_detection_methods:
-
-    all_preds = np.concatenate(predictions[outlier_detection_name], axis=0)
-
-    print_metrics(
-        dataset, predictions_scores, outlier_detection_name, y_true, all_preds
+with open("results.csv", "w") as f:
+    f.write(
+        "outlier_detection_method, dataset, proportion_outliers, max_num_classes, n_shot, backbone, AUROC, Precision at 80 Recall"
     )
+    for outlier_detection_name in outlier_detection_methods:
+
+        all_preds = np.concatenate(predictions[outlier_detection_name], axis=0)
+
+        auc_score, precision_at_recall_objective = print_metrics(
+            dataset, predictions_scores, outlier_detection_name, y_true, all_preds
+        )
+
+        f.write(
+            f"{outlier_detection_name}, {dataset}, {proportion_outliers}, {max_num_classes}, {n_shot}, {path_to_model}, {auc_score}, {precision_at_recall_objective}"
+        )
