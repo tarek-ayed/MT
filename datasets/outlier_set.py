@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from easyfsl.data_tools import EasySet
 import numpy as np
 import torch
@@ -87,17 +87,24 @@ def define_outlier_set(dataset_object):
             return [i for i, label in enumerate(self.labels) if label == class_index]
 
         def sample_class_features_with_outliers(
-            self, class_index=None, proportion_outliers=0.1, limit_num_samples=None
+            self,
+            class_indices: Optional[List] = None,
+            proportion_outliers: Optional[float] = 0.1,
+            limit_num_samples: Optional[int] = None,
+            max_num_classes: Optional[int] = 1,
         ):
 
-            if class_index is None:
-                class_index = np.random.choice(self.labels)
+            if class_indices is None:
+                num_classes = np.random.choice(max_num_classes) + 1
+                class_indices = np.random.choice(
+                    list(set(self.labels)), num_classes, replace=False
+                )
 
             item_indices = [
-                i for i, label in enumerate(self.labels) if label == class_index
+                i for i, label in enumerate(self.labels) if label in class_indices
             ]
             other_indices = [
-                i for i, label in enumerate(self.labels) if label != class_index
+                i for i, label in enumerate(self.labels) if label not in class_indices
             ]
 
             if limit_num_samples is not None and limit_num_samples < len(item_indices):
@@ -127,6 +134,7 @@ def define_outlier_set(dataset_object):
             self.outlier_mode = False
 
     return OutlierSet
+
 
 OutlierCIFAR = define_outlier_set(FewShotCIFAR100)
 OutlierEasySet = define_outlier_set(EasySet)
