@@ -13,3 +13,4 @@ models
 nohup.out
 ROCS
 notebook.py
+results.csv

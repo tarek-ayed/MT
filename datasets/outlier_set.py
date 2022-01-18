@@ -95,9 +95,12 @@ def define_outlier_set(dataset_object):
         ):
 
             if class_indices is None:
+                all_unique_classes = list(set(self.labels))
+                if max_num_classes <= len(all_unique_classes) - 1: # sanity check
+                    raise ValueError("There are not enough classes in the dataset for this experiment")
                 num_classes = np.random.choice(max_num_classes) + 1
                 class_indices = np.random.choice(
-                    list(set(self.labels)), num_classes, replace=False
+                    all_unique_classes, num_classes, replace=False
                 )
 
             item_indices = [
