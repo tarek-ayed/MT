@@ -1,0 +1,1 @@
+outlier_detection_method, dataset, proportion_outliers, max_num_classes, n_shot, backbone, AUROC, Precision at 80 Recall
