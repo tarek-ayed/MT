@@ -91,16 +91,15 @@ def define_outlier_set(dataset_object):
             class_indices: Optional[List] = None,
             proportion_outliers: float = 0.1,
             limit_num_samples: Optional[int] = None,
-            max_num_classes: int = 1,
+            num_classes: int = 1,
         ):
 
             if class_indices is None:
                 all_unique_classes = list(set(self.labels))
-                if max_num_classes <= len(all_unique_classes) - 1:  # sanity check
+                if num_classes <= len(all_unique_classes) - 1:  # sanity check
                     raise ValueError(
                         "There are not enough classes in the dataset for this experiment"
                     )
-                num_classes = np.random.choice(max_num_classes) + 1
                 class_indices = np.random.choice(
                     all_unique_classes, num_classes, replace=False
                 )

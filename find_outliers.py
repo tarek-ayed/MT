@@ -21,7 +21,7 @@ outlier_detection_methods = args.outlier_detection_methods
 proportion_outliers = args.proportion_outliers
 num_samples = args.n_samples
 n_shot = args.n_shot
-max_num_classes = args.max_num_classes
+num_classes = args.num_classes
 
 if device is None:
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -49,7 +49,7 @@ for _ in tqdm.tqdm(range(num_samples)):
     features_backbone, labels = test_set.sample_class_features_with_outliers(
         proportion_outliers=proportion_outliers,
         limit_num_samples=n_shot,
-        max_num_classes=max_num_classes,
+        num_classes=num_classes,
     )
     outlier_labels.append(labels)
 
