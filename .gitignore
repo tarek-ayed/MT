@@ -10,6 +10,8 @@ tarek-mt
 .pyenv
 __pycache__/
 models
-nohup.out
 ROCS
 notebook.py
+results.csv
+
+*.out

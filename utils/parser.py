@@ -44,4 +44,11 @@ def parse_args_outliers():
         help="Number of outliers to add in dataset",
     )
 
+    parser.add_argument(
+        "--num_classes",
+        default=1,
+        type=int,
+        help="Number of different classes in each sample",
+    )
+
     return parser.parse_args()
