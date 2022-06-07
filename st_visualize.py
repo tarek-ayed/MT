@@ -10,6 +10,7 @@ st.title("FSL Outlier Detection Demo")
 
 DATASET = "CUB"
 MODEL_PATH = "models/resnet18_pt_CUB_1st"
+METHODS_TO_EXCLUDE = ["DBSCAN", "EllipticEnvelope", "EllipticEnvelopePCA"]
 
 
 def badge(value, color: str = "green", label: str = "") -> str:
@@ -20,7 +21,11 @@ def badge(value, color: str = "green", label: str = "") -> str:
 with st.sidebar:
     outlier_detection_method_name = st.selectbox(
         "Outlier Detection Method",
-        list(OUTLIER_DETECTION_METHODS),
+        [
+            method
+            for method in list(OUTLIER_DETECTION_METHODS)
+            if method not in METHODS_TO_EXCLUDE
+        ],
         index=list(OUTLIER_DETECTION_METHODS).index("IsolationForest"),
     )
     proportion_outliers = (
