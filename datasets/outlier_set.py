@@ -1,3 +1,4 @@
+from lib2to3.pgen2.token import OP
 import os
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
@@ -94,9 +95,22 @@ def define_outlier_set(dataset_object):
             num_classes: int = 1,
         ):
 
+            item_indices, outlier_labels = self.sample_class_with_outliers(
+                class_indices, proportion_outliers, limit_num_samples, num_classes
+            )
+
+            return np.take(self.features, item_indices, axis=0), outlier_labels
+
+        def sample_class_with_outliers(
+            self,
+            class_indices=None,
+            proportion_outliers=0.1,
+            limit_num_samples=None,
+            num_classes=1,
+        ):
             if class_indices is None:
                 all_unique_classes = list(set(self.labels))
-                if num_classes <= len(all_unique_classes) - 1:  # sanity check
+                if num_classes >= len(all_unique_classes) - 1:  # sanity check
                     raise ValueError(
                         "There are not enough classes in the dataset for this experiment"
                     )
@@ -127,8 +141,7 @@ def define_outlier_set(dataset_object):
             for swap_index, item_index in enumerate(indices_to_swap):
                 item_indices[item_index] = swap_target_images[swap_index]
                 outlier_labels[item_index] = True
-
-            return np.take(self.features, item_indices, axis=0), outlier_labels
+            return item_indices, outlier_labels
 
         def activate_outlier_mode(self):
             self.outlier_labels = self.get_outlier_labels()
