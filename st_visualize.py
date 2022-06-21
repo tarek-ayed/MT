@@ -18,34 +18,38 @@ def badge(value, color: str = "green", label: str = "") -> str:
     return f"![{value}](https://img.shields.io/badge/{label}-{value}-{color})"
 
 
+dataset = DATASETS[DATASET]()
+
 with st.sidebar:
+    kept_methods = [
+        method
+        for method in list(OUTLIER_DETECTION_METHODS)
+        if method not in METHODS_TO_EXCLUDE
+    ]
     outlier_detection_method_name = st.selectbox(
         "Outlier Detection Method",
-        [
-            method
-            for method in list(OUTLIER_DETECTION_METHODS)
-            if method not in METHODS_TO_EXCLUDE
-        ],
-        index=list(OUTLIER_DETECTION_METHODS).index("IsolationForest"),
+        kept_methods,
+        index=kept_methods.index("IsolationForest"),
     )
     proportion_outliers = (
         st.selectbox("Percentage of Outliers", [10 * k for k in range(1, 11)]) / 100
     )
-    n_shot = st.selectbox("n-shot", [5, 10, 30], index=1)
+    k_shot = st.selectbox("k-shot", [5, 10, 30], index=1)
     num_classes = st.selectbox("Number of classes", [1, 2, 3, 5, 10])
 
     class_choice_col1, class_choice_col2 = st.columns(2)
     with class_choice_col1:
-        try:
-            class_index = int(st.text_input("Class Index"))
-        except ValueError:
-            class_index = None
+        class_name = st.text_input("Inlier class:")
     with class_choice_col2:
         pass
+    class_indices = [
+        k for k in dataset.labels if dataset.class_names[k].split(".")[-1] == class_name
+    ]
+    if class_indices == []:
+        class_indices = None
 
     sample_button = st.button("Sample")
 
-dataset = DATASETS[DATASET]()
 
 if "image_indices" not in st.session_state:
     (
@@ -54,7 +58,8 @@ if "image_indices" not in st.session_state:
     ) = dataset.sample_class_with_outliers(
         proportion_outliers=proportion_outliers,
         num_classes=num_classes,
-        limit_num_samples=n_shot,
+        limit_num_samples=k_shot,
+        class_indices=class_indices,
     )
 loader = DataLoader(
     dataset,
@@ -70,7 +75,7 @@ if sample_button:
     ) = dataset.sample_class_with_outliers(
         proportion_outliers=proportion_outliers,
         num_classes=num_classes,
-        limit_num_samples=n_shot,
+        limit_num_samples=k_shot,
     )
 
 button_show_pred = st.button("Compute Outlier Prediction")
@@ -96,6 +101,7 @@ for i, (item, outlier_label) in enumerate(
     counter += 1
     with cols[counter % 4]:
         img, label = dataset[item]
+        class_name = dataset.class_names[label].split(".")[-1]
         img_numpy = img.permute((1, 2, 0)).numpy()
         img_std = img_numpy - img_numpy.min()
         img_std = img_std / img_std.max()
@@ -118,7 +124,7 @@ for i, (item, outlier_label) in enumerate(
             prediction_badge = ""
         if outlier_label:
             # st.markdown("<font color=‘red’>Outlier</font>", unsafe_allow_html=True)
-            st.markdown(badge("Outlier", color="red") + "    " + prediction_badge)
+            st.markdown(badge(class_name, color="red") + "    " + prediction_badge)
         else:
-            st.markdown(badge("OK") + "    " + prediction_badge)
+            st.markdown(badge(class_name) + "    " + prediction_badge)
         st.text("")
